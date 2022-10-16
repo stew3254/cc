@@ -12,3 +12,6 @@ In addition, the project will support other users. At some place, the server wil
 [ ] Allow a user to request a port forward in a temp vm
 [ ] Allow users to specify which type of container they want / vm
 [ ] Give users a range of specifications they want to create (bit more ram / extra network)
+[ ] Global Sockets for command server. One associated with particular groups will have group permissions so you can tell which type of traffic it's for
+[ ] Global socket spawns per connection sock to allow users to request a container or communicate with the server
+[ ] Communication protocol based on json that follow a schema for different control messages

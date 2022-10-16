@@ -10,8 +10,10 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+echo "Creating temporary container. It will be destroyed upon exiting this shell"
+echo "Please be patient, this can take up to a few minutes"
 lxc project switch "$1"
 # Spin up the container and get the name
 name="$(lxc launch ubuntu: | grep "Instance name" | NF)"
-lxc shell $name
-clean_up $name &
+screen lxc shell $name
+lxc delete -f $name

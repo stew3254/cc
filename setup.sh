@@ -12,6 +12,7 @@ function create_project() {
   net="$2"
   cpu=$3
   mem="$4"
+  disk="$5"
 
   if [ -z "$1" ] || [ -z "$2" ]; then
     echo "You must supply project name and network name" 1>&2
@@ -39,6 +40,7 @@ function create_project() {
   # Set some resource limits
   lxc profile set default limits.cpu $cpu
   lxc profile set default limits.memory $mem
+  lxc profile set default limits.memory $mem
 
   # See if it does we're good to go
   if [ -n "$(lxc network ls -f compact | grep $net)" ]; then
@@ -52,6 +54,20 @@ function create_project() {
 
   # Add to the default profile for vms
   lxc network attach-profile $net default
+
+  # See if the storage has already been created
+  if [ -z "$(lxc storage list | grep cc)" ]; then
+    # Make the storage device
+    if [ -n "$disk" ]; then
+      lxc storage create cc zfs size=$disk
+    else
+      # Create a pool with automatic sizing
+      lxc storage create cc zfs
+    fi
+  fi
+
+  # Add the root path to the pool
+  lxc profile device add default root disk path=/ pool=cc
 }
 
 function lxd_init() {
@@ -65,7 +81,7 @@ chmod +x /usr/local/share/cc/shell
 
 # Create the temp user
 if [ -z "$(id -u temp 2>&1 | grep -E '^[0-9]+$')" ]; then
-  useradd -rd / -s /bin/false -G lxd temp 
+  useradd -rmG lxd temp 
   # Hack because idk how to do better
   echo -e "temp\ntemp" | passwd temp &>/dev/null
 fi
